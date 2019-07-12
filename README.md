@@ -50,3 +50,10 @@ All functions in the **Metrics** package take at least two arguments: `actual` a
 | binary classification | Specificity | specificity | ![equation](http://latex.codecogs.com/gif.latex?\frac{TN}{TN%20+%20FP}) |
 | binary classification | False Negative Rate | fnr | ![equation](http://latex.codecogs.com/gif.latex?\frac{FN}{TP%20+%20FN}%20=%20(1%20-%20{sensitivity})) |
 | binary classification | False Positive Rate | fpr | ![equation](http://latex.codecogs.com/gif.latex?\frac{FP}{TN%20+%20FP}%20=%20(1%20-%20{specificity})) |
+| binary classification | Positive Predictive Value | ppv | ![equation](http://latex.codecogs.com/gif.latex?\frac{TP}{TP%20+%20FP}) |
+| binary classification | Negative Predictive Value | npv | ![equation](http://latex.codecogs.com/gif.latex?\frac{TN}{TNP%20+%20FN}) |
+| binary classification | False Discovery Rate | fdr | ![equation](http://latex.codecogs.com/gif.latex?\frac{FP}{TP%20+%20FP}%20=%20(1%20-%20{ppv})) |
+| binary classification | False Omission Rate | fomr | ![equation](http://latex.codecogs.com/gif.latex?\frac{FN}{TN%20+%20FN}%20=%20(1%20-%20{npv})) |
+| binary classification | Positive Likelihood Ratio | lrp | ![equation](http://latex.codecogs.com/gif.latex?\frac{sensitivity}{1%20-%20specificity}) |
+| binary classification | Negative Likelihood Ratio | lrn | ![equation](http://latex.codecogs.com/gif.latex?\frac{1%20-%20sensitivity}{specificity}%20=%20\frac{fnr}{tnr}) |
+

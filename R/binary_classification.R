@@ -332,7 +332,7 @@ lrp <- function(actual, predicted) {
 #' \code{lrn} is used to assessing the value of performing a
 #' diagnostic test, and estimates the ratio of the probability
 #' of a true negative result over the probability of a false negative
-#' result: \code{specificity / (1 - sensitivity)}
+#' result: \code{(1 - sensitivity) / specificity}
 #'
 #' @inheritParams params_binary
 #' @seealso \code{\link{specificity}} \code{\link{sensitivity}}
