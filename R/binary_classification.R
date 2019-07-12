@@ -139,24 +139,6 @@ fbeta_score <- function(actual, predicted, beta = 1) {
     return((1 + beta^2) * prec * rec / ((beta^2 * prec) + rec))
 }
 
-#' Recall
-#'
-#' \code{recall} computes proportion of observations in the positive class
-#'               (i.e. the element in \code{actual} equals 1) that are predicted
-#'               to be in the positive class (i.e. the element in \code{predicted}
-#'               equals 1)
-#'
-#' @inheritParams params_binary
-#' @export
-#' @seealso \code{\link{precision}} \code{\link{fbeta_score}}
-#' @examples
-#' actual <- c(1, 1, 1, 0, 0, 0)
-#' predicted <- c(1, 0, 1, 1, 1, 1)
-#' recall(actual, predicted)
-recall <- function(actual, predicted) {
-    return(mean(predicted[actual == 1]))
-}
-
 #' Binary confusion matrix
 #'
 #' \code{cmat} Calculates a binary classification confusion matrix,
