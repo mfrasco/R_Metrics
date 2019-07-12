@@ -46,3 +46,7 @@ All functions in the **Metrics** package take at least two arguments: `actual` a
 | binary classification | Precision | precision | ![equation](https://latex.codecogs.com/gif.latex?%5Cdpi%7B150%7D%20%5Cfrac%7B1%7D%7B%5Csum%20I%28y_i%20%3D%201%29%7D%5Csum_%7Bi%3D1%7D%20%5E%7Bn%7D%20I%28y_i%20%3D%201%29x_i) |
 | binary classification | Recall | recall | ![equation](https://latex.codecogs.com/gif.latex?%5Cdpi%7B150%7D%20%5Cfrac%7B1%7D%7B%5Csum%20I%28x_i%20%3D%201%29%7D%5Csum_%7Bi%3D1%7D%20%5E%7Bn%7D%20I%28x_i%20%3D%201%29y_i) |
 | binary classification | F-beta Score | fbeta_score | ![equation](https://latex.codecogs.com/gif.latex?%5Cdpi%7B150%7D%20%281%20&plus;%20%5Cbeta%5E2%29%20%5Cfrac%7B%5Ctext%7Bprecision%7D%20*%20%5Ctext%7Brecall%7D%7D%7B%20%28%5Cbeta%5E2%20*%20%5Ctext%7Bprecision%7D%29%20&plus;%20%5Ctext%7Brecall%7D%7D) |
+| binary classification | Sensitivity | sensitivity | ![equation](http://latex.codecogs.com/gif.latex?\frac{TP}{TP%20+%20FN}) |
+| binary classification | Specificity | specificity | ![equation](http://latex.codecogs.com/gif.latex?\frac{TN}{TN%20+%20FP}) |
+| binary classification | False Negative Rate | fnr | ![equation](http://latex.codecogs.com/gif.latex?\frac{FN}{TP%20+%20FN}%20=%20(1%20-%20{sensitivity})) |
+| binary classification | False Positive Rate | fpr | ![equation](http://latex.codecogs.com/gif.latex?\frac{FP}{TN%20+%20FP}%20=%20(1%20-%20{specificity})) |
