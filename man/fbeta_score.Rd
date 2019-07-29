@@ -14,10 +14,10 @@ class and 0 for the negative class.}
 class and 0 for the negative class. Each element represents the
 prediction for the corresponding element in \code{actual}.}
 
-\item{beta}{A non-negative real number controlling how close the F-beta score is to 
-either Precision or Recall. When \code{beta} is at the default of 1, 
+\item{beta}{A non-negative real number controlling how close the F-beta score is to
+either Precision or Recall. When \code{beta} is at the default of 1,
 the F-beta Score is exactly an equally weighted harmonic mean.
-The F-beta score will weight toward Precision when \code{beta} is less 
+The F-beta score will weight toward Precision when \code{beta} is less
 than one.  The F-beta score will weight toward Recall when \code{beta} is
 greater than one.}
 }
