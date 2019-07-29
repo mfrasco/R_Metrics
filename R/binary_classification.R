@@ -88,13 +88,14 @@ logLoss <- function(actual, predicted) {
 #'
 #' @inheritParams params_binary
 #' @export
-#' @seealso \code{\link{recall}} \code{\link{fbeta_score}}
+#' @seealso \code{\link{recall}} \code{\link{fbeta_score}} \code{\link{ppv}}
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 1, 1, 1, 1, 1)
 #' precision(actual, predicted)
 precision <- function(actual, predicted) {
-    return(mean(actual[predicted == 1]))
+    cm <- confusion_matrix(actual, predicted)
+    cm$tp / (cm$tp + cm$fp)
 }
 
 #' Recall
@@ -112,7 +113,8 @@ precision <- function(actual, predicted) {
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' recall(actual, predicted)
 recall <- function(actual, predicted) {
-    return(mean(predicted[actual == 1]))
+    cm <- confusion_matrix(actual, predicted)
+    cm$tp / (cm$tp + cm$fn)
 }
 
 #' F-beta Score
@@ -141,10 +143,11 @@ fbeta_score <- function(actual, predicted, beta = 1) {
 
 #' Binary confusion matrix
 #'
-#' \code{cmat} Calculates a binary classification confusion matrix,
+#' \code{confusion_matrix} Calculates a binary classification confusion matrix,
 #' comparing the predicted with the actual values for the classes.
 #' Assumes that 1 is used for the positive class and 0 for the
 #' negative class.
+#'
 #' Returns a \code{data.frame} with columns corresponding to the
 #' number of True Positives (\code{tp}), False Positives (\code{fp}),
 #' True Negatives (\code{tn}), and False Negatives (\code{fn})
@@ -154,138 +157,167 @@ fbeta_score <- function(actual, predicted, beta = 1) {
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
-#' cmat(actual, predicted)
+#' confusion_matrix(actual, predicted)
+confusion_matrix <- function(actual, predicted) {
+    binvals <- c(0, 1)
 
-cmat <- function(actual, predicted) {
-    tbl <- as.data.frame(table(actual, predicted))
-    cm <- data.frame(tp = NA, fn = NA, fp = NA, tn = NA)
-    cm[, c("tn", "fp", "fn", "tp")] <- tbl$Freq
-    cm
+    # ideally "actual" should be a combination of 0s and 1s,
+    # but could be all 0s or all 1s as degenerate cases
+    if (!(
+        setequal(binvals, unique(actual)) |
+        setequal(c(0), unique(actual)) |
+        setequal(c(1), unique(actual))
+    )) {
+        stop(paste("Expecting a vector of 0s and 1s for 'actual'. Got:",
+                   paste(actual, collapse = ", ")))
+    }
+
+    # "predicted" could be all 0s, all 1s, or a combination
+    if (!(
+        setequal(binvals, unique(predicted)) |
+        setequal(c(0), unique(predicted)) |
+        setequal(c(1), unique(predicted))
+    )) {
+        stop(paste("Expecting a vector of 0s and 1s for 'predicted'. Got:",
+                    paste(predicted, collapse = ", ")))
+    }
+
+    if (length(actual) != length(predicted)) {
+        stop(
+            paste(
+                "Size of 'actual' and 'predicted' are not the same:",
+                length(actual), "!=", length(predicted)
+            )
+        )
+    }
+
+    # explicit comparison
+    tp <- sum(actual == 1 & predicted == 1)
+    tn <- sum(actual == 0 & predicted == 0)
+    fn <- sum(actual == 1 & predicted == 0)
+    fp <- sum(actual == 0 & predicted == 1)
+    data.frame("tp" = tp, "fn" = fn, "fp" = fp, "tn" = tn)
 }
 
 #' Sensitivity
 #'
-#' \code{sensitivity} calculates the proportion of actual positives
+#' \code{sensitivity} calculates the proportion of actual positives (\code{actual} equals 1)
 #' that are correctly identified as such. It is also known as
-#' \code{true positive rate}.
+#' \code{true positive rate} or \code{recall}.
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{specificity}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{specificity}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' sensitivity(actual, predicted)
-
 sensitivity <- function(actual, predicted) {
-    cm <- cmat(actual, predicted)
-    cm$tp / (cm$tp + cm$fn)
+    recall(actual, predicted)
 }
 
 #' Specificity
 #'
-#' \code{specificity} calculates the proportion of actual negatives
+#' \code{specificity} calculates the proportion of actual negatives (\code{actual} equals 0)
 #' that are correctly identified as such. It is also known as
 #' \code{true negative rate}.
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{sensitivity}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{sensitivity}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' specificity(actual, predicted)
-
 specificity <- function(actual, predicted) {
-    cm <- cmat(actual, predicted)
+    cm <- confusion_matrix(actual, predicted)
     cm$tn / (cm$tn + cm$fp)
 }
 
 #' False Negative Rate
 #'
-#' \code{fnr} calculates the proportion of actual positives
+#' \code{fnr} calculates the proportion of actual positives (\code{actual} equals 1)
 #' that are not identified as such.
+#'
 #' It is defined as \code{1 - sensitivity}
 #'
 #' @inheritParams params_binary
 #' @export
-#' @seealso \code{\link{cmat}} \code{\link{sensitivity}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{sensitivity}}
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' fnr(actual, predicted)
-
 fnr <- function(actual, predicted) {
     1 - sensitivity(actual, predicted)
 }
 
 #' False Positive Rate
 #'
-#' \code{fnr} calculates the proportion of actual negatives
+#' \code{fnr} calculates the proportion of actual negative values (\code{actual} equals 0)
 #' that are not identified as such.
+#'
 #' It is defined as \code{1 - specificity}
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{specificity}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{specificity}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' fpr(actual, predicted)
-
 fpr <- function(actual, predicted) {
     1 - specificity(actual, predicted)
 }
 
 #' Positive Predictive Value
 #'
-#' \code{ppv} calculates the proportion positive values that
-#' are true positive results.
+#' \code{ppv} calculates the proportion of all predicted positive values (\code{predicted} equals 1) that
+#' are true positive results. It is also known as \code{precision}
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{npv}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{npv}} \code{\link{precision}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' ppv(actual, predicted)
-
 ppv <- function(actual, predicted) {
-    cm <- cmat(actual, predicted)
-    cm$tp / (cm$tp + cm$fp)
+    precision(actual, predicted)
 }
 
 #' Negative Predictive Value
 #'
-#' \code{ppv} calculates the proportion negative values that
+#' \code{ppv} calculates the proportion all predicted negative values (\code{predicted} equals 0) that
 #' are true negative results.
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{npv}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{npv}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' npv(actual, predicted)
 npv <- function(actual, predicted) {
-    cm <- cmat(actual, predicted)
+    cm <- confusion_matrix(actual, predicted)
     cm$tn / (cm$tn + cm$fn)
 }
 
 #' False Discovery Rate
 #'
-#' \code{fdr} is the complement of the Positive Predictive
-#' Value (\code{ppv}), and is the proportion of positive
-#' results that are false positives.
+#' \code{fdr} computes proportion of observations predicted to be in
+#' the positive class (i.e. the element in \code{predicted} equals 1) that
+#' actually belong to the negative class (i.e.the element in \code{actual} equals 0).
+#'
+#' It is implemented as \code{1 - ppv}
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{ppv}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{ppv}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' fpr(actual, predicted)
-
 fdr <- function(actual, predicted) {
     1 - ppv(actual, predicted)
 }
@@ -297,13 +329,12 @@ fdr <- function(actual, predicted) {
 #' results that are false negatives.
 #'
 #' @inheritParams params_binary
-#' @seealso \code{\link{cmat}} \code{\link{npv}}
+#' @seealso \code{\link{confusion_matrix}} \code{\link{npv}}
 #' @export
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' fomr(actual, predicted)
-
 fomr <- function(actual, predicted) {
     1 - npv(actual, predicted)
 }
@@ -313,7 +344,9 @@ fomr <- function(actual, predicted) {
 #' \code{lrp} is used to assessing the value of performing a
 #' diagnostic test, and estimates the ratio of the probability
 #' of a true positive result over the probability of a false positive
-#' result: \code{sensitivity / (1 - specificity)}
+#' result.
+#'
+#' It is implemented as the ratio: \code{sensitivity / (1 - specificity)}
 #'
 #' @inheritParams params_binary
 #' @seealso \code{\link{tpr}} \code{\link{fpr}}
@@ -322,7 +355,6 @@ fomr <- function(actual, predicted) {
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' lrp(actual, predicted)
-
 lrp <- function(actual, predicted) {
     sensitivity(actual, predicted) / (1 - specificity(actual, predicted))
 }
@@ -332,7 +364,9 @@ lrp <- function(actual, predicted) {
 #' \code{lrn} is used to assessing the value of performing a
 #' diagnostic test, and estimates the ratio of the probability
 #' of a true negative result over the probability of a false negative
-#' result: \code{(1 - sensitivity) / specificity}
+#' result.
+#'
+#' It is implemented as the ratio: \code{(1 - sensitivity) / specificity}
 #'
 #' @inheritParams params_binary
 #' @seealso \code{\link{specificity}} \code{\link{sensitivity}}
@@ -341,7 +375,6 @@ lrp <- function(actual, predicted) {
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(1, 0, 1, 1, 1, 1)
 #' lrn(actual, predicted)
-
 lrn <- function(actual, predicted) {
     (1 - sensitivity(actual, predicted)) / specificity(actual, predicted)
 }
