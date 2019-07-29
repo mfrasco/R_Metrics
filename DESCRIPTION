@@ -9,11 +9,12 @@ Description: An implementation of evaluation metrics in R that are commonly
 Authors@R: c(
     person("Ben", "Hamner", role = c("aut", "cph"), email = "ben@benhamner.com"),
     person("Michael", "Frasco", role = c("aut", "cre"), email = "mfrasco6@gmail.com"),
-    person("Erin", "LeDell", role = c("ctb"), email = "oss@ledell.org"))
+    person("Erin", "LeDell", role = c("ctb"), email = "oss@ledell.org"),
+    person("Jesus", "Castagnetto", role = c("ctb"), email = "jesus@castagnetto.com"))
 Maintainer: Michael Frasco <mfrasco6@gmail.com>
 Suggests:
     testthat
 URL: https://github.com/mfrasco/Metrics
 BugReports: https://github.com/mfrasco/Metrics/issues
 License: BSD_3_clause + file LICENSE
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
