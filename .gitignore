@@ -1,3 +1,5 @@
+*.Rproj
+
 # R History
 *.Rhistory
 
@@ -6,3 +8,4 @@
 
 # Project files
 [Bb]uild/
+.Rproj.user
