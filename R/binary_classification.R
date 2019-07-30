@@ -160,13 +160,15 @@ fbeta_score <- function(actual, predicted, beta = 1) {
 #' confusion_matrix(actual, predicted)
 confusion_matrix <- function(actual, predicted) {
     binvals <- c(0, 1)
+    b_actual <- unique(actual)
+    b_predicted <- unique(predicted)
 
     # ideally "actual" should be a combination of 0s and 1s,
     # but could be all 0s or all 1s as degenerate cases
     if (!(
-        setequal(binvals, unique(actual)) |
-        setequal(c(0), unique(actual)) |
-        setequal(c(1), unique(actual))
+        setequal(binvals, b_actual) |
+        setequal(c(0), b_actual) |
+        setequal(c(1), b_actual)
     )) {
         stop(paste("Expecting a vector of 0s and 1s for 'actual'. Got:",
                    paste(actual, collapse = ", ")))
@@ -174,9 +176,9 @@ confusion_matrix <- function(actual, predicted) {
 
     # "predicted" could be all 0s, all 1s, or a combination
     if (!(
-        setequal(binvals, unique(predicted)) |
-        setequal(c(0), unique(predicted)) |
-        setequal(c(1), unique(predicted))
+        setequal(binvals, b_predicted) |
+        setequal(c(0), b_predicted) |
+        setequal(c(1), b_predicted)
     )) {
         stop(paste("Expecting a vector of 0s and 1s for 'predicted'. Got:",
                     paste(predicted, collapse = ", ")))
@@ -185,18 +187,19 @@ confusion_matrix <- function(actual, predicted) {
     if (length(actual) != length(predicted)) {
         stop(
             paste(
-                "Size of 'actual' and 'predicted' are not the same:",
-                length(actual), "!=", length(predicted)
+                "Size of 'actual' and 'predicted' are not the same: length(actual):",
+                length(actual), "!= length(predicted):", length(predicted)
             )
         )
     }
 
-    # explicit comparison
-    tp <- sum(actual == 1 & predicted == 1)
-    tn <- sum(actual == 0 & predicted == 0)
-    fn <- sum(actual == 1 & predicted == 0)
-    fp <- sum(actual == 0 & predicted == 1)
-    data.frame("tp" = tp, "fn" = fn, "fp" = fp, "tn" = tn)
+    # explicit comparisons
+    data.frame(
+        "tp" = sum(actual == 1 & predicted == 1),
+        "fn" = sum(actual == 1 & predicted == 0),
+        "fp" = sum(actual == 0 & predicted == 1),
+        "tn" = sum(actual == 0 & predicted == 0)
+        )
 }
 
 #' Sensitivity
