@@ -238,7 +238,7 @@ smape <- function(actual, predicted) {
 #' predicted <- c(0.9, 1.8, 2.5, 4.5, 5.0, 6.2)
 #' sle(actual, predicted)
 sle <- function(actual, predicted) {
-    return((log(1 + actual) - log(1 + predicted)) ^ 2)
+    return((log1p(actual) - log1p(predicted)) ^ 2)
 }
 
 #' Mean Squared Log Error
