@@ -49,17 +49,17 @@ auc <- function(actual, predicted) {
 #' @param predicted A numeric vector of predicted values, where the values correspond
 #'                  to the probabilities that each observation in \code{actual}
 #'                  belongs to the positive class
+#' @param eps Log loss is undefined for p=0 or p=1, so probabilities are clipped to 
+#'            \code{pmax(eps, pmin(1 - eps, p))}.
 #' @export
 #' @seealso \code{\link{logLoss}}
 #' @examples
 #' actual <- c(1, 1, 1, 0, 0, 0)
-#' predicted <- c(0.9, 0.8, 0.4, 0.5, 0.3, 0.2)
+#' predicted <- c(1, 0.8, 0.4, 0.5, 1, 0.2)
 #' ll(actual, predicted)
-ll <- function(actual, predicted) {
-    score <- -(actual * log(predicted) + (1 - actual) * log(1 - predicted))
-    score[actual == predicted] <- 0
-    score[is.nan(score)] <- Inf
-    return(score)
+ll <- function(actual, predicted, eps = 1e-15) {
+    predicted = pmax(eps, pmin(1 - eps, predicted))
+    return(-ifelse(actual, log(predicted), log(1 - predicted)))
 }
 
 #' Mean Log Loss
