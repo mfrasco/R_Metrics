@@ -10,14 +10,14 @@ test_that('area under ROC curve is calculated correctly', {
 
 test_that('log loss is calculated correctly', {
     expect_equal(ll(1,1), 0)  
-    expect_equal(ll(1,0), Inf)
-    expect_equal(ll(0,1), Inf)
+    expect_equal(ll(1,0), -log(1e-12))
+    expect_equal(ll(0,1), -log(1 - (1 - 1e-12)))
     expect_equal(ll(1,0.5), -log(0.5))
 })
 
-test_that('mean los loss is calculated correctly', {
+test_that('mean log loss is calculated correctly', {
     expect_equal(logLoss(c(1,1,0,0),c(1,1,0,0)), 0)
-    expect_equal(logLoss(c(1,1,0,0),c(1,1,1,0)), Inf)
+    expect_true(is.finite(logLoss(c(1,1,0,0),c(1,1,1,0))))
     expect_equal(logLoss(c(1,1,1,0,0,0),c(.5,.1,.01,.9,.75,.001)), 1.881797068998267)
 })
 

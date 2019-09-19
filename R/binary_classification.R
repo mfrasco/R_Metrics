@@ -57,7 +57,7 @@ auc <- function(actual, predicted) {
 #' actual <- c(1, 1, 1, 0, 0, 0)
 #' predicted <- c(0.9, 0.8, 0.4, 0.5, 0.3, 0.2)
 #' ll(actual, predicted)
-ll <- function(actual, predicted, eps = 1e-15) {
+ll <- function(actual, predicted, eps = 1e-12) {
     predicted <- pmax(eps, pmin(1 - eps, predicted))
     return(-ifelse(actual, log(predicted), log(1 - predicted)))
 }
