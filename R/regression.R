@@ -358,3 +358,76 @@ rae <- function(actual, predicted) {
 explained_variation <- function(actual, predicted) {
     1 - rse(actual, predicted)
 }
+
+#' Mallows's Cp
+#' 
+#' \code{mallowsCp} computes the Mallows's Cp statistic for a linear regression
+#' model. Mallows's Cp is used to assess the fit of an OLS model, often in order
+#' to find the best subsets of the model's predictors. A smaller value of Cp
+#' is preferred, although Cp ~= p is generally accepted. Mallows's Cp is computed
+#' as follows:
+#' 
+#' \deqn{\frac{SSE_\text{sub}}{MSE_\text{full}} - n + 2p_\text{sub}}
+#' 
+#' or, an alternative definition is occasionally given as:
+#' 
+#' \deqn{MSE_\text{sub} + 2p_\text{sub}MSE_\text{full}}
+#' 
+#' While the two definitions don't give the same answer, a model with the lowest
+#' Cp will have the lowest Cp using both definitions.
+#'
+#' @param full_model Either a \code{formula} or \code{lm} for the OLS model using all predictors.
+#' @param sub_model Either a \code{formula} or \code{lm} for the OLS model with a subset of predictors
+#' @param data The data (only necessary whe supplying formulae)
+#' @param alt_definition Whether or not to use the alternate definition for Mallows's Cp
+#' @export
+mallowsCp <- function(full_model, sub_model, data = NULL, alt_definition = FALSE) {
+    isLm <- function(obj) "lm" %in% class(obj)
+    isForm <- function(obj) "formula" %in% class(obj)
+    
+    if (isLm(full_model) && isLm(sub_model)) {
+        mallowsCpLm(full_model, sub_model, alt_definition)
+    } else if (isForm(full_model) && isForm(sub_model) && !is.null(data)) {
+        mallowsCpFormula(full_model, sub_model, data, alt_definition)
+    } else {
+        error_str <- paste(
+            "To calculate Mallows' Cp, must provide EITHER",
+            "1) A full model and subset model, both of type `lm`, or",
+            "2) The formula for the full and subset model along with the data.",
+            sep = "\n"
+        )
+        stop(error_str)
+    }
+}
+
+#' Mallows's Cp by formula
+#' 
+#' Compute Mallows's Cp when given formulae as opposed to \code{lm} objects.
+#'
+#' @param full_formula \code{formula} for model with all variables.
+#' @param sub_formula \code{formula} for model with subset of variables.
+#' @param data The data
+#' @param alt_definition Whether or not to use the alternate definition for Mallows's Cp
+mallowsCpFormula <- function(full_formula, sub_formula, data, alt_definition) {
+    lm_full <- lm(full_formula, data = data)
+    lm_sub <- lm(sub_formula, data = data)
+    mallowsCpLm(lm_full, lm_sub, alt_definition)
+}
+
+#' Mallows's Cp by lm
+#'
+#' @param full_model \code{formula} for model with all variables.
+#' @param sub_model \code{formula} for model with subset of variables.
+#' @param alt_definition Whether or not to use the alternate definition for Mallows's Cp
+mallowsCpLm <- function(full_model, sub_model, alt_definition) {
+    n <- length(full_model$residuals)
+    p_full <- length(coef(full_model))
+    p_sub <- length(coef(sub_model))
+    
+    sse_sub <- sum(sub_model$residuals^2)
+    mse_sub <- sse_sub / (n - p_sub)
+    mse_full <- sum(full_model$residuals^2) / (n - p_full)
+    
+    if (alt_definition) mse_sub + 2*p_sub*mse_full
+    else sse_sub / mse_full - (n - 2*p_sub)
+}
